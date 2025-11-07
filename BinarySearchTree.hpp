@@ -5,6 +5,8 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <queue>
+#include <map>
 using namespace std;
 
 template <typename T> string toStr(const T &value) {
@@ -111,8 +113,35 @@ public:
   // Remove x from the tree. Nothing is done if x is not found.
   void remove(const Comparable &x) { remove(x, root); }
 
+  // First checks whether or not the tree is empty, if it is not
+  // empty it then calls the internal, BFT which runs through the
+  // tree storing the values of the nodes inside a multimap, where
+  // the key is the row in which the node is found, and the value
+  // is the one inside the node. Then it runs through the multimap
+  // and properly formats a string where each level is enclosed in 
+  // brackets, example ("[num],[num,num]"), that is then returned.
   string BFT() const {
-    string st;
+    multimap<int, string> nodeRows;
+    string st = "[[";
+    if (isEmpty()){
+      st = "[]";
+      return st;
+    }
+    else {
+      BFT(root, nodeRows, 0);
+    }
+    int currRow = 0;
+    for (auto it = nodeRows.begin(); it != nodeRows.end(); it++){
+      if(currRow != it->first){
+        st += "],[" + it->second;
+        currRow++;
+      }
+      else if(it->first != 0){
+        st += "," + it->second;
+      }
+      else{st += it->second;}
+    }
+    st += "]]";
     return st;
   }
 
@@ -277,7 +306,102 @@ private:
     else
       return new BinaryNode{t->element, clone(t->left), clone(t->right)};
   }
+  
+  //Internal recursive method for organization node values by row
+  void BFT(BinaryNode *t, multimap<int, string> &nodeRows, int rowNum) const {
+    if (t != nullptr) {
+      nodeRows.insert({rowNum,toStr(t->element)});
+      BFT(t->left, nodeRows, rowNum+1);
+      BFT(t->right, nodeRows, rowNum+1);
+    }
+  }
+
 };
 
 #endif
 
+//QUEUE
+//PUSH ROOT
+//WHILE !QEMPTY
+//U Q FRONT Q POP
+//PRINT U
+//IF LEFT CHILD Q.PUSH U->LEFT
+
+
+
+
+
+
+
+
+
+/*
+  string BFT() const {
+    multimap<int, string> nodeRows;
+    string st = "[[";
+    if (isEmpty()){
+      st = "[]";
+      return st;
+    }
+    else {
+      BFT(root, nodeRows, 0);
+    }
+    int currRow = 0;
+    for (auto it = nodeRows.begin(); it != nodeRows.end(); it++){
+      if(currRow != it->first){
+        st += "],[" + it->second;
+        currRow++;
+      }
+      else if(it->first != 0){
+        st += "," + it->second;
+      }
+      else{st += it->second;}
+    }
+    st += "]]";
+    return st;
+  }
+
+  void BFT(BinaryNode *t, multimap<int, string> &nodeRows, int rowNum) const {
+    if (t != nullptr) {
+      nodeRows.insert({rowNum,toStr(t->element)});
+      BFT(t->left, nodeRows, rowNum+1);
+      BFT(t->right, nodeRows, rowNum+1);
+    }
+  }
+*/
+
+/*
+    string st = "[[";
+    if (isEmpty()){
+      st = "Empty tree";
+      return st;
+    }
+    int rowNum = 0, rowCheck = 0, rowCheckNum = 2;
+    multimap<int, string> nodeRows;
+    queue<BinaryNode *> breadth;
+    if(root!=NULL){breadth.push(root);}
+    while(!breadth.empty()){
+      BinaryNode *nodeNum = breadth.front();
+      breadth.pop();
+      //cout << nodeNum->element << " ";
+      //st += "[" + toStr(nodeNum->element) + "]";
+      nodeRows.insert({rowNum, toStr(nodeNum->element)});
+      if (nodeNum->left != nullptr){breadth.push(nodeNum->left);rowCheck++;}
+      if (nodeNum->right != nullptr){breadth.push(nodeNum->right);rowCheck++;}
+      if(rowCheck==rowCheckNum){rowCheck=0;rowNum++;rowCheckNum+=3;}
+    }
+    int currRow = 0;
+    for (auto it = nodeRows.begin(); it != nodeRows.end(); it++){
+      if(currRow != it->first){
+        st += "],[" + it->second;
+        currRow++;
+      }
+      else if(it->first != 0){
+        st += "," + it->second;
+      }
+      else{st += it->second;}
+    }
+    st += "]]";
+    return st;
+  }
+*/
